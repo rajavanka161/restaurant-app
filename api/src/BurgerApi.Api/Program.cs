@@ -12,6 +12,8 @@ var cs = builder.Configuration.GetConnectionString("Default")!;
 builder.Services.AddControllers();
 builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlServer(cs));
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddSingleton<IDiscountPolicy>(_ =>
+    builder.Configuration["Pricing:DiscountPolicy"] == "Weekend" ? new WeekendDiscountPolicy() : new NoDiscountPolicy());
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddSingleton<IPaymentGateway, FakePaymentGateway>();
 builder.Services.AddSingleton<TokenService>();

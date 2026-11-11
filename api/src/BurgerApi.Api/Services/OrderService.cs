@@ -3,7 +3,7 @@ using BurgerApi.Domain;
 
 namespace BurgerApi.Services;
 
-public class OrderService(IOrderRepository repo, IPaymentGateway payments)
+public class OrderService(IOrderRepository repo, IPaymentGateway payments, IDiscountPolicy? discounts = null)
 {
     private static readonly string[] Fulfillments = ["Pickup", "Delivery"];
 
@@ -28,14 +28,15 @@ public class OrderService(IOrderRepository repo, IPaymentGateway payments)
         if (quote.Subtotal <= 0) throw new DomainException("Cart has no available items.");
         if (!quote.PromoValid) throw new DomainException("Promo code is invalid or not applicable.");
 
-        var reference = await payments.ChargeAsync(quote.Total, r.Payment.CardNumber, r.Payment.Name);
+        var charge = quote.Total - (discounts?.LoyaltyDiscount(quote.Subtotal) ?? 0m);
+        var reference = await payments.ChargeAsync(charge, r.Payment.CardNumber, r.Payment.Name);
         try
         {
             return await repo.PlaceAsync(userId, r, reference);
         }
         catch
         {
-            await payments.RefundAsync(reference, quote.Total);
+            await payments.RefundAsync(reference, charge);
             throw;
         }
     }
