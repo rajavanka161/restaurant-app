@@ -50,6 +50,9 @@ public class OrdersController(OrderService orders, IOrderRepository repo) : ApiC
     [HttpGet("kitchen/orders"), Authorize(Roles = Roles.Staff)]
     public Task<List<KitchenOrder>> Active() => repo.ListActiveAsync();
 
+    [HttpGet("kitchen/open-count"), Authorize(Roles = Roles.Staff)]
+    public async Task<int> OpenCount() => (await repo.ListActiveAsync()).Count;
+
     [HttpPost("kitchen/orders/{id:int}/status"), Authorize(Roles = Roles.Staff)]
     public async Task<IActionResult> SetStatus(int id, [FromBody] StatusChange r)
     {
