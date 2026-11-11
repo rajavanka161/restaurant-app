@@ -1,0 +1,12 @@
+bin/
+obj/
+node_modules/
+dist/
+.angular/
+*.user
+.env
+.env.*
+.vs/
+.idea/
+.DS_Store
+web/.vscode/
