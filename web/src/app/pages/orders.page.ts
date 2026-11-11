@@ -1,14 +1,15 @@
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ApiService, errorMessage } from '../core/api.service';
 import { OrderSummary } from '../core/models';
 import { utc } from '../core/order-status';
+import { Money } from '../shared/money';
 import { StatusBadge } from '../shared/status-badge';
 
 @Component({
   selector: 'app-orders-page',
-  imports: [CurrencyPipe, DatePipe, RouterLink, StatusBadge],
+  imports: [DatePipe, Money, RouterLink, StatusBadge],
   template: `
     <h1 class="display py-8 text-4xl">My orders</h1>
     @if (error()) { <p class="font-semibold text-ketchup" role="alert">{{ error() }}</p> }
@@ -24,7 +25,7 @@ import { StatusBadge } from '../shared/status-badge';
               <p class="text-sm text-ink-soft">{{ date(o.createdAt) | date: 'MMM d, h:mm a' }} · {{ o.itemCount }} items · {{ o.fulfillmentType }}</p>
             </div>
             <app-status-badge [status]="o.status" />
-            <span class="w-20 text-right font-bold">{{ o.total | currency }}</span>
+            <span class="w-20 text-right font-bold"><app-money [amount]="o.total" /></span>
           </a>
         </li>
       }
