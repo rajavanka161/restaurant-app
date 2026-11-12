@@ -1,6 +1,8 @@
 using BurgerApi.Data;
 using BurgerApi.Domain;
+using BurgerApi.Endpoints;
 using BurgerApi.Services;
+using BurgerApi.Services.Events;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +14,21 @@ var cs = builder.Configuration.GetConnectionString("Default")!;
 builder.Services.AddControllers();
 builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlServer(cs));
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddSingleton<IDiscountPolicy>(_ =>
+    builder.Configuration["Pricing:DiscountPolicy"] == "Weekend" ? new WeekendDiscountPolicy() : new NoDiscountPolicy());
+builder.Services.AddScoped<IEventBus, EventBus>();
+builder.Services.AddScoped<IEventHandler<OrderPlaced>, OrderPlacedLogger>();
+builder.Services.AddScoped<IEventHandler<OrderPlaced>, OrderEventRecorder>();
 builder.Services.AddScoped<OrderService>();
+builder.Services.AddHostedService<SalesSnapshotService>();
+builder.Services.AddScoped<MenuQueries>();
+if (builder.Configuration.GetValue("Features:HtmlReceipts", false))
+    builder.Services.AddSingleton<IReceiptRenderer, HtmlReceiptRenderer>();
+else
+    builder.Services.AddSingleton<IReceiptRenderer, PlainTextReceiptRenderer>();
+builder.Services.AddScoped<SpendLookup>();
+builder.Services.AddScoped<CustomerSnapshotService>();
+builder.Services.AddScoped<OrderNoteRepository>();
 builder.Services.AddSingleton<IPaymentGateway, FakePaymentGateway>();
 builder.Services.AddSingleton<TokenService>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -49,6 +65,7 @@ app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapPromoEndpoints();
 
 if (!app.Configuration.GetValue("SkipDbInit", false))
     await DbInitializer.InitializeAsync(app.Services, cs, app.Logger);

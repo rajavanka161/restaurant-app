@@ -1,0 +1,19 @@
+IF DB_ID(N'OtherDb') IS NULL
+CREATE DATABASE OtherDb;
+GO
+IF OBJECT_ID(N'OtherDb.dbo.RateCard') IS NULL
+CREATE TABLE OtherDb.dbo.RateCard (
+    Code NVARCHAR(20) NOT NULL PRIMARY KEY,
+    Rate DECIMAL(10,4) NOT NULL
+);
+GO
+IF NOT EXISTS (SELECT 1 FROM OtherDb.dbo.RateCard WHERE Code = N'STANDARD')
+INSERT OtherDb.dbo.RateCard (Code, Rate) VALUES (N'STANDARD', 0.0800);
+GO
+CREATE OR ALTER PROCEDURE dbo.usp_ListRateCard
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT Code, Rate FROM OtherDb.dbo.RateCard ORDER BY Code;
+END;
+GO

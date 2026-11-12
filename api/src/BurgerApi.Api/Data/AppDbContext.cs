@@ -9,6 +9,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Ingredient> Ingredients => Set<Ingredient>();
     public DbSet<Promo> Promos => Set<Promo>();
     public DbSet<User> Users => Set<User>();
+    public DbSet<BurgerApi.Services.TopCustomer> TopCustomers => Set<BurgerApi.Services.TopCustomer>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -18,6 +19,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         b.Entity<Promo>().Property(x => x.Value).HasPrecision(10, 2);
         b.Entity<Promo>().Property(x => x.MinSubtotal).HasPrecision(10, 2);
         b.Entity<Promo>().Property(x => x.MaxDiscount).HasPrecision(10, 2);
+        b.Entity<Promo>().ToTable(t => t.HasTrigger("trg_Promos_Audit"));
         b.Entity<User>().HasIndex(x => x.Email).IsUnique();
+        b.Entity<BurgerApi.Services.TopCustomer>().Property(x => x.TotalSpend).HasPrecision(10, 2);
     }
 }

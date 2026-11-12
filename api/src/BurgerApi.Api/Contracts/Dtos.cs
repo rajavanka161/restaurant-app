@@ -37,3 +37,5 @@ public record SalesSummary(DateTime SalesDate, int OrderCount, decimal GrossSale
 public record TopItem(string Name, int Quantity, decimal Revenue);
 public record HourlySales(int Hour, int Orders, decimal Sales);
 public record DailySalesReport(SalesSummary Summary, List<TopItem> TopItems, List<HourlySales> Hourly);
+
+public record OrderNoteDto([Range(1, int.MaxValue)] int OrderId, [Required, MaxLength(500)] string Text);

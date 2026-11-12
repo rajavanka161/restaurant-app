@@ -17,6 +17,7 @@ public class MenuItem
     public string Emoji { get; set; } = "🍔";
     public int? Calories { get; set; }
     public bool IsAvailable { get; set; } = true;
+    public Category? Category { get; set; }
 }
 
 public class Ingredient

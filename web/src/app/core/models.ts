@@ -27,6 +27,7 @@ export interface PlaceOrderRequest {
   items: CartLine[]; fulfillmentType: Fulfillment; promoCode?: string | null;
   deliveryAddress?: string | null; phone?: string | null; payment: { cardNumber: string; name: string };
 }
+export interface OrderNoteDto { orderId: number; text: string; }
 export interface Ingredient { id: number; name: string; unit: string; stockQty: number; reorderLevel: number; }
 export interface MenuItemUpsert {
   name: string; description: string; price: number; categoryId: number; emoji: string;

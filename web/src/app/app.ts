@@ -13,6 +13,7 @@ import { CartDrawer } from './shared/cart-drawer';
         <a routerLink="/" class="display shrink-0 text-xl text-ink sm:text-2xl">Smashline</a>
         <nav class="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto text-sm font-semibold" aria-label="Main">
           <a routerLink="/" routerLinkActive="bg-ink text-white" [routerLinkActiveOptions]="{ exact: true }" class="rounded-full px-3 py-1.5 hover:bg-mustard-deep">Menu</a>
+          <a routerLink="/about" routerLinkActive="bg-ink text-white" class="rounded-full px-3 py-1.5 hover:bg-mustard-deep">About</a>
           @if (auth.isLoggedIn()) {
             <a routerLink="/orders" routerLinkActive="bg-ink text-white" class="rounded-full px-3 py-1.5 hover:bg-mustard-deep">My orders</a>
           }

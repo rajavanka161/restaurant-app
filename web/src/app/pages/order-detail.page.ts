@@ -4,10 +4,11 @@ import { RouterLink } from '@angular/router';
 import { ApiService, errorMessage } from '../core/api.service';
 import { OrderDetail } from '../core/models';
 import { FLOW, canCustomerCancel, statusMessage, statusStep, utc } from '../core/order-status';
+import { Money } from '../shared/money';
 
 @Component({
   selector: 'app-order-detail-page',
-  imports: [CurrencyPipe, DatePipe, RouterLink],
+  imports: [CurrencyPipe, DatePipe, Money, RouterLink],
   template: `
     <a routerLink="/orders" class="mt-6 inline-block text-sm font-semibold underline">All orders</a>
     @if (error() && !detail()) { <p class="mt-6 font-semibold text-ketchup" role="alert">{{ error() }}</p> }
@@ -43,7 +44,7 @@ import { FLOW, canCustomerCancel, statusMessage, statusStep, utc } from '../core
             @if (d.order.discount > 0) { <div class="flex justify-between text-pickle"><dt>Promo {{ d.order.promoCode }}</dt><dd>−{{ d.order.discount | currency }}</dd></div> }
             <div class="flex justify-between"><dt>Tax</dt><dd>{{ d.order.tax | currency }}</dd></div>
             @if (d.order.deliveryFee > 0) { <div class="flex justify-between"><dt>Delivery</dt><dd>{{ d.order.deliveryFee | currency }}</dd></div> }
-            <div class="flex items-baseline justify-between pt-2"><dt class="font-bold">Total</dt><dd class="display text-xl">{{ d.order.total | currency }}</dd></div>
+            <div class="flex items-baseline justify-between pt-2"><dt class="font-bold">Total</dt><dd class="display text-xl"><app-money [amount]="d.order.total" /></dd></div>
           </dl>
           @if (d.order.paymentStatus === 'Refunded') {
             <p class="mb-3 text-sm font-semibold text-pickle">Refunded {{ d.order.total | currency }} to your card.</p>

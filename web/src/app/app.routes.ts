@@ -1,4 +1,6 @@
 import { Routes } from '@angular/router';
+import { requireNonEmptyCart } from './core/cart-guard';
+import { categoriesResolver } from './core/categories.resolver';
 import { requireLogin, requireRole } from './core/guards';
 
 export const routes: Routes = [
@@ -20,5 +22,23 @@ export const routes: Routes = [
       { path: 'stock', title: 'Ingredient stock', loadComponent: () => import('./pages/admin/admin-stock.page').then((m) => m.AdminStockPage) },
     ],
   },
+  {
+    path: 'review',
+    title: 'Review cart',
+    canActivate: [requireNonEmptyCart],
+    resolve: { categories: categoriesResolver },
+    loadComponent: () => import('./pages/review.page').then((m) => m.ReviewPage),
+  },
+  { path: 'about', title: 'About', loadComponent: () => import('./pages/about.page').then((m) => m.AboutPage) },
+  { path: 'info', loadChildren: () => import('./pages/info/info.routes').then((m) => m.INFO_ROUTES) },
+  { path: 'wishlist', title: 'Wishlist', loadComponent: () => import('./pages/wishlist.page').then((m) => m.WishlistPage) },
+  {
+    path: 'order-notes',
+    title: 'Order notes',
+    canActivate: [requireRole('Kitchen', 'Manager')],
+    loadComponent: () => import('./pages/order-notes.page').then((m) => m.OrderNotesPage),
+  },
+  { path: 'overview', title: 'Menu overview', loadComponent: () => import('./pages/menu-overview.page').then((m) => m.MenuOverviewPage) },
+  { path: 'specials', title: 'Specials', loadComponent: () => import('./pages/menu.page').then((m) => m.MenuPage) },
   { path: '**', redirectTo: '' },
 ];
