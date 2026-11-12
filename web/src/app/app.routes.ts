@@ -1,4 +1,6 @@
 import { Routes } from '@angular/router';
+import { requireNonEmptyCart } from './core/cart-guard';
+import { categoriesResolver } from './core/categories.resolver';
 import { requireLogin, requireRole } from './core/guards';
 
 export const routes: Routes = [
@@ -19,6 +21,13 @@ export const routes: Routes = [
       { path: 'menu', title: 'Edit menu', loadComponent: () => import('./pages/admin/admin-menu.page').then((m) => m.AdminMenuPage) },
       { path: 'stock', title: 'Ingredient stock', loadComponent: () => import('./pages/admin/admin-stock.page').then((m) => m.AdminStockPage) },
     ],
+  },
+  {
+    path: 'review',
+    title: 'Review cart',
+    canActivate: [requireNonEmptyCart],
+    resolve: { categories: categoriesResolver },
+    loadComponent: () => import('./pages/review.page').then((m) => m.ReviewPage),
   },
   { path: '**', redirectTo: '' },
 ];
