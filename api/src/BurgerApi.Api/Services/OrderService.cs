@@ -13,6 +13,8 @@ public class OrderService(IOrderRepository repo, IPaymentGateway payments, IDisc
         if (!Fulfillments.Contains(type)) throw new DomainException("Fulfillment must be Pickup or Delivery.");
     }
 
+    public static bool IsOpenStatus(string status) => status is "Received" or "Preparing" or "Ready";
+
     public Task<Quote> QuoteAsync(QuoteRequest r)
     {
         ValidateFulfillment(r.FulfillmentType);
