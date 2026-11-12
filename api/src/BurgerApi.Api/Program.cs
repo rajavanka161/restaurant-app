@@ -1,5 +1,6 @@
 using BurgerApi.Data;
 using BurgerApi.Domain;
+using BurgerApi.Endpoints;
 using BurgerApi.Services;
 using BurgerApi.Services.Events;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -56,6 +57,7 @@ app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapPromoEndpoints();
 
 if (!app.Configuration.GetValue("SkipDbInit", false))
     await DbInitializer.InitializeAsync(app.Services, cs, app.Logger);
