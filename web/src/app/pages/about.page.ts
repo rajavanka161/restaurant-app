@@ -10,6 +10,7 @@ import { RouterLink } from '@angular/router';
       <li><a routerLink="/info/hours">Opening hours</a></li>
       <li><a routerLink="/info/contact">Contact</a></li>
       <li><a routerLink="/review">Review your cart</a></li>
+      <li><a routerLink="/wishlist">Wishlist</a></li>
     </ul>
   `,
 })

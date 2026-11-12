@@ -31,5 +31,6 @@ export const routes: Routes = [
   },
   { path: 'about', title: 'About', loadComponent: () => import('./pages/about.page').then((m) => m.AboutPage) },
   { path: 'info', loadChildren: () => import('./pages/info/info.routes').then((m) => m.INFO_ROUTES) },
+  { path: 'wishlist', title: 'Wishlist', loadComponent: () => import('./pages/wishlist.page').then((m) => m.WishlistPage) },
   { path: '**', redirectTo: '' },
 ];
