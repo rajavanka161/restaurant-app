@@ -22,6 +22,10 @@ builder.Services.AddScoped<IEventHandler<OrderPlaced>, OrderEventRecorder>();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddHostedService<SalesSnapshotService>();
 builder.Services.AddScoped<MenuQueries>();
+if (builder.Configuration.GetValue("Features:HtmlReceipts", false))
+    builder.Services.AddSingleton<IReceiptRenderer, HtmlReceiptRenderer>();
+else
+    builder.Services.AddSingleton<IReceiptRenderer, PlainTextReceiptRenderer>();
 builder.Services.AddSingleton<IPaymentGateway, FakePaymentGateway>();
 builder.Services.AddSingleton<TokenService>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
