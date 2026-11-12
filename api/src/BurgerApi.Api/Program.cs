@@ -28,6 +28,7 @@ else
     builder.Services.AddSingleton<IReceiptRenderer, PlainTextReceiptRenderer>();
 builder.Services.AddScoped<SpendLookup>();
 builder.Services.AddScoped<CustomerSnapshotService>();
+builder.Services.AddScoped<OrderNoteRepository>();
 builder.Services.AddSingleton<IPaymentGateway, FakePaymentGateway>();
 builder.Services.AddSingleton<TokenService>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
