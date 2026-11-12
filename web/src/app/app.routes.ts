@@ -38,5 +38,6 @@ export const routes: Routes = [
     canActivate: [requireRole('Kitchen', 'Manager')],
     loadComponent: () => import('./pages/order-notes.page').then((m) => m.OrderNotesPage),
   },
+  { path: 'overview', title: 'Menu overview', loadComponent: () => import('./pages/menu-overview.page').then((m) => m.MenuOverviewPage) },
   { path: '**', redirectTo: '' },
 ];

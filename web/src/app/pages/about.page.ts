@@ -18,6 +18,7 @@ import { CategoryService } from '../core/category.service';
       <li><a routerLink="/info/contact">Contact</a></li>
       <li><a routerLink="/review">Review your cart</a></li>
       <li><a routerLink="/wishlist">Wishlist</a></li>
+      <li><a routerLink="/overview">Menu overview</a></li>
       @if (auth.isStaff()) { <li><a routerLink="/order-notes">Order notes</a></li> }
     </ul>
   `,
