@@ -1,9 +1,10 @@
 using BurgerApi.Contracts;
 using BurgerApi.Domain;
+using BurgerApi.Services.Events;
 
 namespace BurgerApi.Services;
 
-public class OrderService(IOrderRepository repo, IPaymentGateway payments, IDiscountPolicy? discounts = null)
+public class OrderService(IOrderRepository repo, IPaymentGateway payments, IDiscountPolicy? discounts = null, IEventBus? events = null)
 {
     private static readonly string[] Fulfillments = ["Pickup", "Delivery"];
 
@@ -30,15 +31,18 @@ public class OrderService(IOrderRepository repo, IPaymentGateway payments, IDisc
 
         var charge = quote.Total - (discounts?.LoyaltyDiscount(quote.Subtotal) ?? 0m);
         var reference = await payments.ChargeAsync(charge, r.Payment.CardNumber, r.Payment.Name);
+        int orderId;
         try
         {
-            return await repo.PlaceAsync(userId, r, reference);
+            orderId = await repo.PlaceAsync(userId, r, reference);
         }
         catch
         {
             await payments.RefundAsync(reference, charge);
             throw;
         }
+        if (events is not null) await events.PublishAsync(new OrderPlaced(orderId, userId, quote.Total));
+        return orderId;
     }
 
     public async Task UpdateStatusAsync(int orderId, string requested, int staffUserId)

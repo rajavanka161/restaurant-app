@@ -1,6 +1,7 @@
 using BurgerApi.Data;
 using BurgerApi.Domain;
 using BurgerApi.Services;
+using BurgerApi.Services.Events;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,9 @@ builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlServer(cs));
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddSingleton<IDiscountPolicy>(_ =>
     builder.Configuration["Pricing:DiscountPolicy"] == "Weekend" ? new WeekendDiscountPolicy() : new NoDiscountPolicy());
+builder.Services.AddScoped<IEventBus, EventBus>();
+builder.Services.AddScoped<IEventHandler<OrderPlaced>, OrderPlacedLogger>();
+builder.Services.AddScoped<IEventHandler<OrderPlaced>, OrderEventRecorder>();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddSingleton<IPaymentGateway, FakePaymentGateway>();
 builder.Services.AddSingleton<TokenService>();
