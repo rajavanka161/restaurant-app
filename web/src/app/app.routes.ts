@@ -29,5 +29,7 @@ export const routes: Routes = [
     resolve: { categories: categoriesResolver },
     loadComponent: () => import('./pages/review.page').then((m) => m.ReviewPage),
   },
+  { path: 'about', title: 'About', loadComponent: () => import('./pages/about.page').then((m) => m.AboutPage) },
+  { path: 'info', loadChildren: () => import('./pages/info/info.routes').then((m) => m.INFO_ROUTES) },
   { path: '**', redirectTo: '' },
 ];
