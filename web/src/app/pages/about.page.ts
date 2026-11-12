@@ -1,6 +1,7 @@
 import { AsyncPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { AuthService } from '../core/auth.service';
 import { CategoryService } from '../core/category.service';
 
 @Component({
@@ -17,9 +18,11 @@ import { CategoryService } from '../core/category.service';
       <li><a routerLink="/info/contact">Contact</a></li>
       <li><a routerLink="/review">Review your cart</a></li>
       <li><a routerLink="/wishlist">Wishlist</a></li>
+      @if (auth.isStaff()) { <li><a routerLink="/order-notes">Order notes</a></li> }
     </ul>
   `,
 })
 export class AboutPage {
+  protected readonly auth = inject(AuthService);
   protected readonly categories$ = inject(CategoryService).list();
 }
