@@ -123,3 +123,11 @@ Cases 6, 7, 8 and 12 add C# or SQL objects with **no caller**. They were kept un
 - `dotnet test api`: 38 passed.
 - `ng build`: succeeded. `ng test --watch=false`: 25 passed.
 - Every new SQL object was created at API start-up and the procedures and views were executed against the dev database. The seed has no orders, so they returned empty or zero results. The `@@ROWCOUNT` value returned by `usp_ArchiveOldOrders` was not checked with real rows.
+
+# Graph-gap cases (branch `test/graph-gaps`)
+
+Cases 1-21 below add running code for patterns the app did not use before. One commit per case (`Graph gap N: ...`). Line numbers are for the tip of the branch. "Certain" means the link can be read from the source text alone. "Inferred" means it needs DI, configuration, naming or runtime knowledge. A perfect graph marks which is which.
+
+| # | File:line | What a perfect dependency graph shows |
+|---|-----------|----------------------------------------|
+| 1 | `db/010_order_notes_reviews.sql:8-9, 20-21` | Nodes: tables `OrderNotes`, `MenuItemReviews`. Foreign-key links, each pointing from the child to the parent: `OrderNotes`→`Orders` (`FK_OrderNotes_Orders`, column `OrderId`), `OrderNotes`→`Users` (`AuthorUserId`), `MenuItemReviews`→`MenuItems` (`MenuItemId`), `MenuItemReviews`→`Users` (`UserId`). All four are certain, and each carries the constraint name and the column. Changing `dbo.Users` now affects `OrderNotes` and `MenuItemReviews` as well. |
