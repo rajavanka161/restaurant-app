@@ -21,6 +21,7 @@ builder.Services.AddScoped<IEventHandler<OrderPlaced>, OrderPlacedLogger>();
 builder.Services.AddScoped<IEventHandler<OrderPlaced>, OrderEventRecorder>();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddHostedService<SalesSnapshotService>();
+builder.Services.AddScoped<MenuQueries>();
 builder.Services.AddSingleton<IPaymentGateway, FakePaymentGateway>();
 builder.Services.AddSingleton<TokenService>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
