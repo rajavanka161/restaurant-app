@@ -26,6 +26,8 @@ if (builder.Configuration.GetValue("Features:HtmlReceipts", false))
     builder.Services.AddSingleton<IReceiptRenderer, HtmlReceiptRenderer>();
 else
     builder.Services.AddSingleton<IReceiptRenderer, PlainTextReceiptRenderer>();
+builder.Services.AddScoped<SpendLookup>();
+builder.Services.AddScoped<CustomerSnapshotService>();
 builder.Services.AddSingleton<IPaymentGateway, FakePaymentGateway>();
 builder.Services.AddSingleton<TokenService>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
