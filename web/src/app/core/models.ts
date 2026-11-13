@@ -9,6 +9,7 @@ export interface MenuItem {
 }
 export interface MenuCategory { id: number; name: string; items: MenuItem[]; }
 export interface Category { id: number; name: string; sortOrder: number; }
+export interface ReorderResult { available: { item: MenuItem; quantity: number }[]; unavailable: string[]; }
 export interface CartLine { menuItemId: number; quantity: number; }
 export interface Quote {
   subtotal: number; discount: number; tax: number; deliveryFee: number; total: number; promoValid: boolean;

@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { API_URL } from './config';
 import {
   AuthResponse, CartLine, Category, DailySalesReport, Fulfillment, Ingredient, KitchenOrder, MenuCategory,
-  MenuItem, MenuItemUpsert, OrderDetail, OrderStatus, OrderSummary, PlaceOrderRequest, Quote,
+  MenuItem, MenuItemUpsert, OrderDetail, OrderStatus, OrderSummary, PlaceOrderRequest, Quote, ReorderResult,
 } from './models';
 
 @Injectable({ providedIn: 'root' })
@@ -28,6 +28,7 @@ export class ApiService {
   myOrders() { return this.http.get<OrderSummary[]>(`${API_URL}/orders/mine`); }
   recentOrders() { return this.http.get<OrderSummary[]>(`${API_URL}/orders`); }
   order(id: number) { return this.http.get<OrderDetail>(`${API_URL}/orders/${id}`); }
+  reorder(id: number) { return this.http.get<ReorderResult>(`${API_URL}/orders/${id}/reorder`); }
   cancelOrder(id: number) { return this.http.post<void>(`${API_URL}/orders/${id}/cancel`, {}); }
   refundOrder(id: number) { return this.http.post<void>(`${API_URL}/orders/${id}/refund`, {}); }
 

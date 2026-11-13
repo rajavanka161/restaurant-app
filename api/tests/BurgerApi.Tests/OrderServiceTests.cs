@@ -146,4 +146,39 @@ public class OrderServiceTests
         Assert.Equal(409, ex.StatusCode);
         Assert.Empty(_gw.Refunds);
     }
+
+    private static MenuItemDto Menu(int id, string name, bool available = true) =>
+        new(id, 1, "Burgers", name, "", 8.99m, "🍔", null, available);
+
+    [Fact]
+    public async Task Reorder_splits_available_lines_from_unavailable_ones()
+    {
+        _repo.Payment = new OrderPayment(7, "PAY-1", 30m, "Paid", "Completed");
+        _repo.Candidates =
+        [
+            new ReorderCandidate("Classic Smash", 2, Menu(1, "Classic Smash")),
+            new ReorderCandidate("Shake", 1, Menu(9, "Shake", available: false)),
+            new ReorderCandidate("Retired Burger", 1, null),
+        ];
+        var result = await Sut.ReorderAsync(5, 7);
+        var line = Assert.Single(result.Available);
+        Assert.Equal(2, line.Quantity);
+        Assert.Equal(["Shake", "Retired Burger"], result.Unavailable);
+    }
+
+    [Fact]
+    public async Task Reorder_of_someone_elses_order_is_not_found()
+    {
+        _repo.Payment = new OrderPayment(8, "PAY-1", 30m, "Paid", "Completed");
+        var ex = await Assert.ThrowsAsync<DomainException>(() => Sut.ReorderAsync(5, 7));
+        Assert.Equal(404, ex.StatusCode);
+    }
+
+    [Fact]
+    public async Task Reorder_of_unknown_order_is_not_found()
+    {
+        _repo.Payment = null;
+        var ex = await Assert.ThrowsAsync<DomainException>(() => Sut.ReorderAsync(5, 7));
+        Assert.Equal(404, ex.StatusCode);
+    }
 }

@@ -75,4 +75,25 @@ describe('CartService', () => {
     http.expectNone((r) => r.url.endsWith('/cart/quote'));
     expect(cart.quote()).toBeNull();
   });
+
+  it('merges reordered lines into the existing cart and caps quantity at 50', () => {
+    cart.setQuantity(item(1, 5), 49);
+    cart.add(item(3, 2));
+    cart.addMany([{ item: item(1, 5), quantity: 4 }, { item: item(2, 3), quantity: 2 }]);
+    expect(cart.quantityOf(1)).toBe(50);
+    expect(cart.quantityOf(2)).toBe(2);
+    expect(cart.quantityOf(3)).toBe(1);
+    expect(cart.lines().map((l) => l.item.id)).toEqual([1, 2, 3]);
+  });
+
+  it('adds only the available lines when reordering and returns what was skipped', () => {
+    let skipped: string[] = [];
+    cart.reorder(1001).subscribe((r) => (skipped = r.unavailable));
+    http.expectOne((r) => r.url.endsWith('/orders/1001/reorder')).flush({
+      available: [{ item: item(1, 5), quantity: 2 }],
+      unavailable: ['Shake'],
+    });
+    expect(cart.quantityOf(1)).toBe(2);
+    expect(skipped).toEqual(['Shake']);
+  });
 });

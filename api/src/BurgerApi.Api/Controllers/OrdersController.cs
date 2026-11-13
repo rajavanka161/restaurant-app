@@ -33,6 +33,9 @@ public class OrdersController(OrderService orders, IOrderRepository repo) : ApiC
         return order;
     }
 
+    [HttpGet("orders/{id:int}/reorder"), Authorize]
+    public Task<ReorderResult> Reorder(int id) => orders.ReorderAsync(id, UserId);
+
     [HttpPost("orders/{id:int}/cancel"), Authorize]
     public async Task<IActionResult> Cancel(int id)
     {

@@ -45,6 +45,9 @@ public class FakeRepo : IOrderRepository
     public Task CancelAsync(int orderId, int userId, bool isStaff) { Calls.Add("cancel"); return Task.CompletedTask; }
     public Task RefundAsync(int orderId, int userId) { Calls.Add("refund"); return Task.CompletedTask; }
 
+    public List<ReorderCandidate> Candidates { get; set; } = [];
+    public Task<List<ReorderCandidate>> GetReorderCandidatesAsync(int orderId) => Task.FromResult(Candidates);
+
     public Task<List<OrderSummary>> ListForUserAsync(int userId) => throw new NotImplementedException();
     public Task<List<KitchenOrder>> ListActiveAsync() => throw new NotImplementedException();
     public Task<List<OrderSummary>> ListRecentAsync(int count) => throw new NotImplementedException();

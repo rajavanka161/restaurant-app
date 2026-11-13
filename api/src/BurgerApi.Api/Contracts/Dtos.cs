@@ -27,6 +27,8 @@ public record OrderDetail(OrderSummary Order, List<OrderLine> Items, List<Status
 
 public record MenuItemDto(int Id, int CategoryId, string Category, string Name, string Description, decimal Price, string Emoji, int? Calories, bool IsAvailable);
 public record MenuCategoryDto(int Id, string Name, List<MenuItemDto> Items);
+public record ReorderLine(MenuItemDto Item, int Quantity);
+public record ReorderResult(List<ReorderLine> Available, List<string> Unavailable);
 public record MenuItemUpsert([Required] string Name, string? Description, [Range(0, 1000)] decimal Price,
     int CategoryId, string? Emoji, int? Calories, bool IsAvailable);
 

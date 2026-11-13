@@ -40,6 +40,17 @@ public class OrderService(IOrderRepository repo, IPaymentGateway payments)
         }
     }
 
+    public async Task<ReorderResult> ReorderAsync(int orderId, int userId)
+    {
+        var order = await repo.GetPaymentAsync(orderId);
+        if (order is null || order.UserId != userId) throw new DomainException("Order not found.", 404);
+        var candidates = await repo.GetReorderCandidatesAsync(orderId);
+        var available = candidates.Where(c => c.Current is { IsAvailable: true })
+            .Select(c => new ReorderLine(c.Current!, c.Quantity)).ToList();
+        var unavailable = candidates.Where(c => c.Current is not { IsAvailable: true }).Select(c => c.OrderedName).ToList();
+        return new ReorderResult(available, unavailable);
+    }
+
     public async Task UpdateStatusAsync(int orderId, string requested, int staffUserId)
     {
         if (!Enum.TryParse<OrderStatus>(requested, true, out var next))
