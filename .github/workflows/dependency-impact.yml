@@ -1,0 +1,33 @@
+# Copy this file to .github/workflows/dependency-impact.yml in any repository, public or private, whose pull requests you want
+# checked. Every pull request then gets one comment (updated on each push) saying what the change could affect, what it removes
+# and which tests to run, plus an advisory status line. It never fails or blocks the pull request.
+#
+# One-time setup in that repository: Settings > Secrets and variables > Actions > New repository secret
+#   Name DEPGRAPH_DEPLOY_KEY, value the private half of a read-only deploy key added to the code dependency platform repository.
+# (For a private repository that is allowed to use the platform's action directly, see dependency-impact-private.yml: no secret.)
+name: Dependency impact
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+  statuses: write
+
+jobs:
+  impact:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      # The tool's branch; change feature/graph-coverage to main or a tag once it is merged.
+      - uses: actions/checkout@v7
+        with:
+          repository: rajavanka161/cdp
+          ref: feature/graph-coverage
+          ssh-key: ${{ secrets.DEPGRAPH_DEPLOY_KEY }}
+          path: .depgraph-tool
+      - uses: ./.depgraph-tool/.github/actions/dependency-impact

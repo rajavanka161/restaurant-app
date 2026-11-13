@@ -57,7 +57,7 @@ public class OrderService(IOrderRepository repo, IPaymentGateway payments)
         if (!isStaff && order.UserId != userId) throw new DomainException("Order not found.", 404);
         var status = Enum.Parse<OrderStatus>(order.Status);
         if (!OrderStateMachine.CanCancel(status, isStaff))
-            throw new DomainException("This order can no longer be cancelled.", 409);
+            throw new DomainException("This order can no longer be cancelled; ask the kitchen.", 409);
         await repo.CancelAsync(orderId, userId, isStaff);
         if (order.PaymentStatus == "Paid" && order.PaymentReference is not null)
             await payments.RefundAsync(order.PaymentReference, order.Total);
