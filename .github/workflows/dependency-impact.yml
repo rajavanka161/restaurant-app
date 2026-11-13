@@ -23,11 +23,11 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      # The tool's branch; change feature/graph-coverage to main or a tag once it is merged.
+      # The tool's branch or tag. Pin a tag such as v0.2.0 if you want a fixed version.
       - uses: actions/checkout@v7
         with:
           repository: rajavanka161/cdp
-          ref: feature/graph-coverage
+          ref: main
           ssh-key: ${{ secrets.DEPGRAPH_DEPLOY_KEY }}
           path: .depgraph-tool
       - uses: ./.depgraph-tool/.github/actions/dependency-impact
