@@ -37,3 +37,10 @@ public record SalesSummary(DateTime SalesDate, int OrderCount, decimal GrossSale
 public record TopItem(string Name, int Quantity, decimal Revenue);
 public record HourlySales(int Hour, int Orders, decimal Sales);
 public record DailySalesReport(SalesSummary Summary, List<TopItem> TopItems, List<HourlySales> Hourly);
+
+public record PeriodTotals(int OrderCount, decimal GrossSales, decimal RefundedAmount, decimal NetSales, decimal DiscountsGiven, int CancelledCount);
+public record DailyPoint(DateTime SalesDate, int Orders, decimal NetSales);
+public record PrepTimeByHour(int Hour, int Orders, decimal AvgMinutes);
+public record SalesTrendData(PeriodTotals Current, PeriodTotals Previous, List<DailyPoint> Daily, List<PrepTimeByHour> PrepTimes);
+public record SalesTrendReport(DateTime From, DateTime To, PeriodTotals Current, PeriodTotals Previous,
+    decimal? NetSalesChangePct, decimal? OrderCountChangePct, List<DailyPoint> Daily, List<PrepTimeByHour> PrepTimes);

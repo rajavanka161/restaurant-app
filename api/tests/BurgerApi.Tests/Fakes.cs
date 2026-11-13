@@ -50,4 +50,8 @@ public class FakeRepo : IOrderRepository
     public Task<List<OrderSummary>> ListRecentAsync(int count) => throw new NotImplementedException();
     public Task<OrderDetail?> GetAsync(int orderId) => throw new NotImplementedException();
     public Task<DailySalesReport> DailyReportAsync(DateOnly date) => throw new NotImplementedException();
+
+    public SalesTrendData NextTrend { get; set; } = new(
+        new PeriodTotals(0, 0, 0, 0, 0, 0), new PeriodTotals(0, 0, 0, 0, 0, 0), [], []);
+    public Task<SalesTrendData> TrendAsync(DateOnly from, DateOnly to) => Task.FromResult(NextTrend);
 }

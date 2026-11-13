@@ -15,6 +15,7 @@ export const routes: Routes = [
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'report' },
       { path: 'report', title: 'Daily sales', loadComponent: () => import('./pages/admin/report.page').then((m) => m.ReportPage) },
+      { path: 'trends', title: 'Sales trends', loadComponent: () => import('./pages/admin/report-trends.page').then((m) => m.ReportTrendsPage) },
       { path: 'orders', title: 'Orders', loadComponent: () => import('./pages/admin/admin-orders.page').then((m) => m.AdminOrdersPage) },
       { path: 'menu', title: 'Edit menu', loadComponent: () => import('./pages/admin/admin-menu.page').then((m) => m.AdminMenuPage) },
       { path: 'stock', title: 'Ingredient stock', loadComponent: () => import('./pages/admin/admin-stock.page').then((m) => m.AdminStockPage) },

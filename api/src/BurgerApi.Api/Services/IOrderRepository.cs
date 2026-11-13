@@ -17,4 +17,5 @@ public interface IOrderRepository
     Task CancelAsync(int orderId, int userId, bool isStaff);
     Task RefundAsync(int orderId, int userId);
     Task<DailySalesReport> DailyReportAsync(DateOnly date);
+    Task<SalesTrendData> TrendAsync(DateOnly from, DateOnly to);
 }
