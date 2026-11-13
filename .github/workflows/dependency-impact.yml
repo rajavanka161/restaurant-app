@@ -1,0 +1,82 @@
+# Copy this file to .github/workflows/dependency-impact.yml in the repository whose pull requests you want checked.
+# It posts (and on every push, updates) one advisory comment saying what the change could affect. It never fails the PR.
+#
+# One-time setup:
+#   1. Add a read-only deploy key to the dependency platform repository (Settings > Deploy keys, "Allow write access" off).
+#   2. Save its private half in the repository that holds this file:
+#      Settings > Secrets and variables > Actions > New repository secret, name DEPGRAPH_DEPLOY_KEY.
+# Change DEPGRAPH_REPO below if that repository has another name.
+name: Dependency impact
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  DEPGRAPH_REPO: rajavanka161/cdp
+  # The branch of the tool to use. Change to main once the graph-coverage work is merged.
+  DEPGRAPH_REF: feature/graph-coverage
+
+jobs:
+  impact:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out this repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          path: target
+
+      - name: Check out the dependency tool
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.DEPGRAPH_REPO }}
+          ref: ${{ env.DEPGRAPH_REF }}
+          ssh-key: ${{ secrets.DEPGRAPH_DEPLOY_KEY }}
+          path: tool
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Build the tool
+        run: |
+          npm install --prefix tool/tools/angular-scanner --no-audit --no-fund
+          dotnet build tool/src/DepGraph.Cli -c Release -v quiet
+
+      - name: Work out what the change could affect
+        id: check
+        continue-on-error: true
+        run: |
+          dotnet tool/src/DepGraph.Cli/bin/Release/net10.0/depgraph.dll pr-check target \
+            --base "origin/${{ github.base_ref }}" --head HEAD --sticky --out comment.md
+
+      - name: Post or update the comment
+        if: steps.check.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          id=$(gh api "repos/$REPO/issues/$PR/comments" --paginate \
+                 --jq '.[] | select(.body | contains("<!-- depgraph-impact-comment -->")) | .id' | head -1)
+          if [ -n "$id" ]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$id" -F body=@comment.md
+          else
+            gh pr comment "$PR" --repo "$REPO" --body-file comment.md
+          fi
+
+      - name: Keep the comment as a file
+        if: steps.check.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-impact
+          path: comment.md

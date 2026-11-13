@@ -121,7 +121,7 @@ BEGIN
     SELECT @status = Status, @owner = UserId, @pay = PaymentStatus FROM dbo.Orders WITH (UPDLOCK) WHERE Id = @OrderId;
     IF @status IS NULL THROW 50020, 'Order not found.', 1;
     IF @IsStaff = 0 AND @owner <> @RequestedByUserId THROW 50022, 'Not your order.', 1;
-    IF @IsStaff = 0 AND @status <> 'Received' THROW 50023, 'Order can no longer be cancelled by the customer.', 1;
+    IF @IsStaff = 0 AND @status <> 'Received' THROW 50023, 'Orders can only be cancelled by the customer while still Received.', 1;
     IF @status IN ('Ready','Completed','Cancelled') THROW 50024, 'Order cannot be cancelled in its current status.', 1;
 
     UPDATE ing SET StockQty = ing.StockQty + r.Qty
