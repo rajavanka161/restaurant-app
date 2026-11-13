@@ -113,6 +113,27 @@ public class OrderRepository(IConfiguration config) : IOrderRepository
             "SELECT UserId, PaymentReference, Total, PaymentStatus, Status FROM dbo.Orders WHERE Id = @orderId", new { orderId });
     }
 
+    private record ReorderRow(string OrderedName, int Quantity, int? MenuItemId, int? CategoryId, string? Category,
+        string? Name, string? Description, decimal? Price, string? Emoji, int? Calories, bool? IsAvailable);
+
+    public async Task<List<ReorderCandidate>> GetReorderCandidatesAsync(int orderId)
+    {
+        await using var c = Open();
+        var rows = await c.QueryAsync<ReorderRow>(
+            """
+            SELECT oi.Name AS OrderedName, oi.Quantity, m.Id AS MenuItemId, m.CategoryId, c.Name AS Category,
+                   m.Name, m.Description, m.Price, m.Emoji, m.Calories, m.IsAvailable
+            FROM dbo.OrderItems oi
+            LEFT JOIN dbo.MenuItems m ON m.Id = oi.MenuItemId
+            LEFT JOIN dbo.Categories c ON c.Id = m.CategoryId
+            WHERE oi.OrderId = @orderId
+            ORDER BY oi.Id
+            """, new { orderId });
+        return rows.Select(r => new ReorderCandidate(r.OrderedName, r.Quantity,
+            r.MenuItemId is null ? null : new MenuItemDto(r.MenuItemId.Value, r.CategoryId!.Value, r.Category!, r.Name!,
+                r.Description ?? "", r.Price!.Value, r.Emoji ?? "", r.Calories, r.IsAvailable!.Value))).ToList();
+    }
+
     public Task UpdateStatusAsync(int orderId, string newStatus, int userId) => Guard<int>(async () =>
     {
         await using var c = Open();

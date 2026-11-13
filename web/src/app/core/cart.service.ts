@@ -1,6 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
+import { Observable, tap } from 'rxjs';
 import { ApiService } from './api.service';
-import { CartLine, Fulfillment, MenuItem, Quote } from './models';
+import { CartLine, Fulfillment, MenuItem, Quote, ReorderResult } from './models';
 
 const KEY = 'smashline.cart';
 
@@ -33,6 +34,19 @@ export class CartService {
     const q = Math.min(Math.max(0, Math.floor(quantity)), 50);
     const rest = this.entries().filter((e) => e.item.id !== item.id);
     this.commit(q === 0 ? rest : [...rest, { item, quantity: q }].sort((a, b) => a.item.id - b.item.id));
+  }
+
+  addMany(lines: CartEntry[]) {
+    const merged = new Map(this.entries().map((e) => [e.item.id, e]));
+    for (const l of lines) {
+      const q = Math.min((merged.get(l.item.id)?.quantity ?? 0) + l.quantity, 50);
+      merged.set(l.item.id, { item: l.item, quantity: q });
+    }
+    this.commit([...merged.values()].sort((a, b) => a.item.id - b.item.id));
+  }
+
+  reorder(orderId: number): Observable<ReorderResult> {
+    return this.api.reorder(orderId).pipe(tap((r) => this.addMany(r.available)));
   }
 
   clear() {

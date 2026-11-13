@@ -2,6 +2,7 @@ import { CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, DestroyRef, OnInit, computed, inject, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ApiService, errorMessage } from '../core/api.service';
+import { CartService } from '../core/cart.service';
 import { OrderDetail } from '../core/models';
 import { FLOW, canCustomerCancel, statusMessage, statusStep, utc } from '../core/order-status';
 
@@ -54,6 +55,8 @@ import { FLOW, canCustomerCancel, statusMessage, statusStep, utc } from '../core
             @for (h of d.history; track $index) { <li>{{ h.status }} at {{ date(h.changedAt) | date: 'h:mm a' }}</li> }
           </ul>
 
+          <button type="button" class="btn-primary mb-4 w-full" [disabled]="busy()" (click)="reorder()">Order again</button>
+          @if (notice()) { <p class="mb-3 text-sm font-semibold text-pickle" role="status">{{ notice() }}</p> }
           @if (canCancel()) {
             <button type="button" class="btn-ghost mb-4 w-full" [disabled]="busy()" (click)="cancel()">Cancel order and refund</button>
           }
@@ -67,10 +70,12 @@ export class OrderDetailPage implements OnInit {
   readonly id = input.required<string>();
   private readonly api = inject(ApiService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly cart = inject(CartService);
 
   protected readonly detail = signal<OrderDetail | null>(null);
   protected readonly error = signal('');
   protected readonly busy = signal(false);
+  protected readonly notice = signal('');
   protected readonly flow = FLOW;
   protected readonly date = utc;
   protected readonly step = computed(() => statusStep(this.detail()!.order.status));
@@ -90,6 +95,25 @@ export class OrderDetailPage implements OnInit {
     this.api.order(+this.id()).subscribe({
       next: (d) => { this.detail.set(d); this.error.set(''); },
       error: (e) => this.error.set(errorMessage(e, 'Order not found.')),
+    });
+  }
+
+  reorder() {
+    this.busy.set(true);
+    this.notice.set('');
+    this.error.set('');
+    this.cart.reorder(+this.id()).subscribe({
+      next: (r) => {
+        this.busy.set(false);
+        if (r.available.length === 0) {
+          this.error.set('None of the items in this order are available right now.');
+          return;
+        }
+        this.cart.refreshQuote();
+        this.cart.open.set(true);
+        if (r.unavailable.length > 0) this.notice.set(`Not added, no longer available: ${r.unavailable.join(', ')}.`);
+      },
+      error: (e) => { this.busy.set(false); this.error.set(errorMessage(e)); },
     });
   }
 
