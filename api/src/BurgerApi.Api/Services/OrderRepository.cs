@@ -147,4 +147,17 @@ public class OrderRepository(IConfiguration config) : IOrderRepository
         var hourly = (await multi.ReadAsync<HourlySales>()).ToList();
         return new DailySalesReport(summary, top, hourly);
     }
+
+    public async Task<SalesTrendData> TrendAsync(DateOnly from, DateOnly to)
+    {
+        await using var c = Open();
+        using var multi = await c.QueryMultipleAsync("dbo.usp_SalesTrend",
+            new { From = from.ToDateTime(TimeOnly.MinValue), To = to.ToDateTime(TimeOnly.MinValue) },
+            commandType: CommandType.StoredProcedure);
+        var current = await multi.ReadSingleAsync<PeriodTotals>();
+        var previous = await multi.ReadSingleAsync<PeriodTotals>();
+        var daily = (await multi.ReadAsync<DailyPoint>()).ToList();
+        var prep = (await multi.ReadAsync<PrepTimeByHour>()).ToList();
+        return new SalesTrendData(current, previous, daily, prep);
+    }
 }

@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { API_URL } from './config';
 import {
   AuthResponse, CartLine, Category, DailySalesReport, Fulfillment, Ingredient, KitchenOrder, MenuCategory,
-  MenuItem, MenuItemUpsert, OrderDetail, OrderStatus, OrderSummary, PlaceOrderRequest, Quote,
+  MenuItem, MenuItemUpsert, OrderDetail, OrderStatus, OrderSummary, PlaceOrderRequest, Quote, SalesTrendReport,
 } from './models';
 
 @Injectable({ providedIn: 'root' })
@@ -38,6 +38,9 @@ export class ApiService {
   setStock(id: number, stockQty: number) { return this.http.put<Ingredient>(`${API_URL}/ingredients/${id}/stock`, { stockQty }); }
   dailySales(date: string) {
     return this.http.get<DailySalesReport>(`${API_URL}/reports/daily-sales`, { params: new HttpParams().set('date', date) });
+  }
+  salesTrends(from: string, to: string) {
+    return this.http.get<SalesTrendReport>(`${API_URL}/reports/trends`, { params: new HttpParams().set('from', from).set('to', to) });
   }
 }
 

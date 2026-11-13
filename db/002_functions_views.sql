@@ -56,3 +56,12 @@ SELECT Id, Name, Unit, StockQty, ReorderLevel
 FROM dbo.Ingredients
 WHERE StockQty <= ReorderLevel;
 GO
+CREATE OR ALTER VIEW dbo.vw_OrderPrepTimes
+AS
+SELECT o.Id AS OrderId, o.CreatedAt,
+       DATEDIFF(SECOND, r.ChangedAt, y.ChangedAt) / 60.0 AS PrepMinutes
+FROM dbo.Orders o
+JOIN dbo.OrderStatusHistory r ON r.OrderId = o.Id AND r.Status = 'Received'
+JOIN dbo.OrderStatusHistory y ON y.OrderId = o.Id AND y.Status = 'Ready'
+WHERE o.Status <> 'Cancelled';
+GO

@@ -175,3 +175,38 @@ BEGIN
     GROUP BY DATEPART(HOUR, o.CreatedAt) ORDER BY [Hour];
 END;
 GO
+CREATE OR ALTER PROCEDURE dbo.usp_SalesTrend
+    @From DATE,
+    @To DATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+    DECLARE @Days INT = DATEDIFF(DAY, @From, @To) + 1;
+    DECLARE @PrevFrom DATE = DATEADD(DAY, -@Days, @From);
+    DECLARE @PrevTo DATE = DATEADD(DAY, -1, @From);
+
+    SELECT ISNULL(SUM(OrderCount), 0) AS OrderCount,
+           ISNULL(SUM(GrossSales), 0) AS GrossSales,
+           ISNULL(SUM(RefundedAmount), 0) AS RefundedAmount,
+           ISNULL(SUM(GrossSales), 0) - ISNULL(SUM(RefundedAmount), 0) AS NetSales,
+           ISNULL(SUM(DiscountsGiven), 0) AS DiscountsGiven,
+           ISNULL(SUM(CancelledCount), 0) AS CancelledCount
+    FROM dbo.vw_DailySales WHERE SalesDate BETWEEN @From AND @To;
+
+    SELECT ISNULL(SUM(OrderCount), 0) AS OrderCount,
+           ISNULL(SUM(GrossSales), 0) AS GrossSales,
+           ISNULL(SUM(RefundedAmount), 0) AS RefundedAmount,
+           ISNULL(SUM(GrossSales), 0) - ISNULL(SUM(RefundedAmount), 0) AS NetSales,
+           ISNULL(SUM(DiscountsGiven), 0) AS DiscountsGiven,
+           ISNULL(SUM(CancelledCount), 0) AS CancelledCount
+    FROM dbo.vw_DailySales WHERE SalesDate BETWEEN @PrevFrom AND @PrevTo;
+
+    SELECT SalesDate, OrderCount AS Orders, GrossSales - RefundedAmount AS NetSales
+    FROM dbo.vw_DailySales WHERE SalesDate BETWEEN @From AND @To ORDER BY SalesDate;
+
+    SELECT DATEPART(HOUR, CreatedAt) AS [Hour], COUNT(*) AS Orders, CAST(ROUND(AVG(PrepMinutes), 1) AS DECIMAL(8,1)) AS AvgMinutes
+    FROM dbo.vw_OrderPrepTimes
+    WHERE CAST(CreatedAt AS DATE) BETWEEN @From AND @To
+    GROUP BY DATEPART(HOUR, CreatedAt) ORDER BY [Hour];
+END;
+GO
