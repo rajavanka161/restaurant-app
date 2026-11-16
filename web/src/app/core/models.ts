@@ -32,6 +32,15 @@ export interface MenuItemUpsert {
   name: string; description: string; price: number; categoryId: number; emoji: string;
   calories: number | null; isAvailable: boolean;
 }
+export interface PeriodTotals {
+  orderCount: number; grossSales: number; refundedAmount: number; netSales: number; discountsGiven: number; cancelledCount: number;
+}
+export interface SalesTrendReport {
+  from: string; to: string; current: PeriodTotals; previous: PeriodTotals;
+  netSalesChangePct: number | null; orderCountChangePct: number | null;
+  daily: { salesDate: string; orders: number; netSales: number }[];
+  prepTimes: { hour: number; orders: number; avgMinutes: number }[];
+}
 export interface DailySalesReport {
   summary: {
     salesDate: string; orderCount: number; grossSales: number; refundedAmount: number;

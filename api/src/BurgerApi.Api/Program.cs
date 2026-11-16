@@ -13,6 +13,7 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlServer(cs));
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<OrderService>();
+builder.Services.AddScoped<ReportService>();
 builder.Services.AddSingleton<IPaymentGateway, FakePaymentGateway>();
 builder.Services.AddSingleton<TokenService>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

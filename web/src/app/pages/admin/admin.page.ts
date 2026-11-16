@@ -17,6 +17,7 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 export class AdminPage {
   protected readonly tabs = [
     { path: 'report', label: 'Daily sales' },
+    { path: 'trends', label: 'Sales trends' },
     { path: 'orders', label: 'Orders' },
     { path: 'menu', label: 'Menu and prices' },
     { path: 'stock', label: 'Ingredient stock' },
